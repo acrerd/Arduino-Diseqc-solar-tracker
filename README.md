@@ -9,7 +9,7 @@ signals onto the drive power lines.
 
 Single precision limits the angular precision. A comparison with the JPL Horizons
 system show discrete errors of up to 1 minute in hour angle without the lookup tables.
-With the tables the errors are less (not checcked how much less!)
+With the tables the errors are less (not checked how much less!)
 
 22 kHz signal should be set to 650 mV p-p
 
