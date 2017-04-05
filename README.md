@@ -4,10 +4,10 @@ Arduino-Diseqc-solar-tracker
 callisto_drive uses an arduino to control a DiSEqC 1.2 satellite motor so
 an antenna can track the Sun in right ascension.
 The arduino calculates the position of the Sun and sends tone controls to
-the drive via pin 8. Extrernal electronics are required to inject the tone
+the drive via pin 8. External electronics are required to inject the tone
 signals onto the drive power lines.
 
-Single precision arithmetic limits the angular precision. A comparison with the JPL Horizons
+Single-precision arithmetic limits the angular precision. A comparison with the JPL Horizons
 system show discrete errors of up to 1 minute in hour angle without the lookup tables.
 With the tables the errors are less (not checked how much less!)
 
