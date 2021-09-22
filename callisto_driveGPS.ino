@@ -18,7 +18,7 @@
 // Graham Woan 13/10/2012
 // still to do:
 // display sidereal time
-#include <Time.h>
+#include <TimeLib.h>
 #include <math.h>
 #include  <util/parity.h>
 #include <Wire.h>
