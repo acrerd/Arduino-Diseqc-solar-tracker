@@ -1,3 +1,5 @@
+#include <LiquidCrystal_I2C.h>
+
 // e_callisto_drive uses an arduino to control a DiSEqC 1.2 satellite motor to
 // an antenna can track the Sun in right ascension.
 // The arduino calculates the position of the Sun and sends tone controls to 
@@ -37,7 +39,9 @@
 #define D6_pin  6
 #define D7_pin  7
 
-LiquidCrystal_I2C	lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin);
+long time_offset = 619315200; // set to zero if there is no bug but 1024 weeks (in seconds) if there is
+
+LiquidCrystal_I2C  lcd(I2C_ADDR,En_pin,Rw_pin,Rs_pin,D4_pin,D5_pin,D6_pin,D7_pin);
 
 SoftwareSerial mySerial(6, 4); // from the GPS module, green to 6, white to 4
 Adafruit_GPS GPS(&mySerial);
@@ -55,8 +59,7 @@ float longitude = -4.30722; // default telescope longitude, degrees, E positive
 float latitude = 55.90222; // default telescope latitude, degrees north
 float alat;
 int datapin = 8;// the pin on which the arduino generates the tone 
-int sw5v = 3; // power pin for the switch
-int sw = 2; // switch pin
+int sw = 3; // switch pin
 int switchstate = 0;  // variable for reading the switch status
 
 long t;
@@ -100,11 +103,7 @@ const float stlookup[] = {
 //////////////////////////////////////////////////////////////////////////////
 void setup() {
   pinMode(datapin,OUTPUT); // tone output
-  pinMode(sw5v, OUTPUT); // power pin for switch
-  digitalWrite(sw5v, HIGH); 
-  pinMode(sw, INPUT); //pin for switch
-//    Wire.begin();
-
+  pinMode(sw, INPUT_PULLUP); //pin for switch
 
 //start gps setup
  lcd.begin (16,2);
@@ -117,46 +116,17 @@ void setup() {
   lcd.setCursor (0,0);
   lcd.print("  DiSEqC solar  "); 
   lcd.setCursor (0,1);
-  lcd.print("  tracker v1.0  "); 
-  
-  // connect at 115200 so we can read the GPS fast enough and echo without dropping chars
-  // also spit it out
+  lcd.print("  tracker v1.1  "); 
+
   Serial.begin(115200);
   GPS.begin(9600);
-  
-  // uncomment this line to turn on RMC (recommended minimum) and GGA (fix data) including altitude
-  //GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCGGA);
-  // uncomment this line to turn on only the "minimum recommended" data
   GPS.sendCommand(PMTK_SET_NMEA_OUTPUT_RMCONLY);
-  // For parsing data, we don't suggest using anything but either RMC only or RMC+GGA since
-  // the parser doesn't care about other sentences at this time
-  
-  // Set the update rate
-  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);   // 1 Hz update rate
-  // For the parsing code to work nicely and have time to sort thru the data, and
-  // print it out we don't suggest using anything higher than 1 Hz
-
-  // Request updates on antenna status, comment out to keep quiet
-  //GPS.sendCommand(PGCMD_ANTENNA);
-
-  // the nice thing about this code is you can have a timer0 interrupt go off
-  // every 1 millisecond, and read data from the GPS for you. that makes the
-  // loop code a heck of a lot easier!
+  GPS.sendCommand(PMTK_SET_NMEA_UPDATE_1HZ);  
   useInterrupt(true);
-
   delay(2000);
-  // Ask for firmware version
-  mySerial.println(PMTK_Q_RELEASE);
+} // end setup
 
-
-// end gps setup
-
-//setTime(12,0,0,1,1,2013); // some initial time
-//t = now();
-}
 /////////////////////////////////////////////////////////////////////////////
-
-
 // Interrupt is called once a millisecond, looks for any new GPS data, and stores it
 SIGNAL(TIMER0_COMPA_vect) {
   char c = GPS.read();
@@ -322,35 +292,21 @@ void loop() {
   // approximately every 1 sec, print out the current stats
   if (millis() - timer > 900) { 
     timer = millis(); // reset the timer
-    
+
+     setTime(GPS.hour,GPS.minute,GPS.seconds,GPS.day,GPS.month,2000+GPS.year); 
+     while (year()<2022) adjustTime(time_offset); // loop is there because the adjustment does not always succeed for some reason!
+     t = now();
+
  //   lcd.home();
      char ln[16];
      lcd.home();
-     sprintf(ln, "%02d/%02d/%02d   %02d:%02d", GPS.day, GPS.month, GPS.year, GPS.hour, GPS.minute);
+ //    sprintf(ln, "%02d/%02d/%02d   %02d:%02d", GPS.day, GPS.month, GPS.year, GPS.hour, GPS.minute);
+     sprintf(ln, "%02d/%02d/%02d   %02d:%02d", day(), month(), year()-2000, hour(), minute());
      lcd.print(ln);
-    
-/*     if (GPS.fix) {
-      lcd.setCursor (0,1); 
-      lcd.print(GPS.latitude/100, 0); lcd.print((char)223); 
-      lcd.print(GPS.latitude-int(GPS.latitude/100)*100, 0); lcd.print("'"); 
-      lcd.print(GPS.lat);
-      lcd.print("   "); 
-      lcd.print(GPS.longitude/100, 0); lcd.print((char)223);
-      lcd.print(GPS.longitude-int(GPS.longitude/100)*100, 0);lcd.print("'"); 
-      lcd.print(GPS.lon); 
-} 
-     else
-     { 
-      lcd.setCursor (0,1); 
-      lcd.print("** no GPS fix **");
-    }
-*/
 
  // end gps and display stuff
  
- setTime(GPS.hour,GPS.minute,GPS.seconds,GPS.day,GPS.month,2000+GPS.year); 
 
- t = now();
  d0 = (t-946728000)/86400.0; //Find the days since J2000.0
  epoch = (int) d0/600.0; // lookup table index
  if (epoch<0) {epoch=0;}
@@ -407,6 +363,9 @@ void loop() {
       lcd.print(GPS.longitude/100, 0); lcd.print((char)223);
       lcd.print(GPS.longitude-int(GPS.longitude/100)*100, 0);lcd.print("'"); 
       lcd.print(GPS.lon);        
+      
+      
+      
       } 
      else
      { 
