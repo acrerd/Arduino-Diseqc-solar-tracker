@@ -13,11 +13,11 @@ With the tables the errors are less (not checked how much less!)
 
 22 kHz signal should be set to 650 mV p-p
 
-see http://www.eutelsat.com/files/contributed/satellites/pdf/Diseqc/Reference%20docs/bus_spec.pdf
-and http://www.eutelsat.com/files/contributed/satellites/pdf/Diseqc/associated%20docs/position_app_note_v1.pdf
-but note these are incomplete.
+see position_app_note_v1.pdf in https://www.eutelsat.com/files/PDF/DiSEqC-documentation.zip
+but note these notes are incomplete.
 
 Set the time at the serial console (9600 baud) with the format "yyyy mm dd hh mm ss".
 
-Graham Woan 13/10/2012
-links updated 19/12/2016
+Version 1.1 includes code to mitigaste the 2020 GPS rolloover bug, for receiver modules that are subject to it (like ours!).
+
+Graham Woan 
