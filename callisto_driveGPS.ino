@@ -48,7 +48,7 @@ Adafruit_GPS GPS(&mySerial);
 
 // Set GPSECHO to 'false' to turn off echoing the GPS data to the Serial console
 // Set to 'true' if you want to debug and listen to the raw GPS sentences. 
-#define GPSECHO  false
+#define GPSECHO  true
 
 // this keeps track of whether we're using the interrupt
 // off by default!
@@ -103,6 +103,8 @@ const float stlookup[] = {
 //////////////////////////////////////////////////////////////////////////////
 void setup() {
   pinMode(datapin,OUTPUT); // tone output
+  pinMode(7,OUTPUT); // pullup for gps data
+  digitalWrite(7, HIGH); // pull it up
   pinMode(sw, INPUT_PULLUP); //pin for switch
 
 //start gps setup
