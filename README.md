@@ -18,6 +18,6 @@ but note these notes are incomplete.
 
 Set the time at the serial console (9600 baud) with the format "yyyy mm dd hh mm ss".
 
-Version 1.1 includes code to mitigaste the 2020 GPS rolloover bug, for receiver modules that are subject to it (like ours!).
+Version 1.1 includes code to mitigate the 2020 GPS rollover bug, for receiver modules that are subject to it (like ours!).
 
 Graham Woan 
